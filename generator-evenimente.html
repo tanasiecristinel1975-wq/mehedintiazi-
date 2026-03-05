@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generator Evenimente</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; min-height: 100vh; }
+
+h1 { text-align: center; color: #2c3e50; margin-bottom: 24px; font-size: 24px; }
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.card h2 { font-size: 15px; color: #555; margin-bottom: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Adauga eveniment */
+.add-row {
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;
+}
+.add-row .field { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 180px; }
+.add-row .field label { font-size: 12px; color: #888; }
+.add-row input[type="text"],
+.add-row input[type="date"] {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.add-row input:focus { border-color: #3498db; }
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s, transform 0.1s;
+  white-space: nowrap;
+}
+.btn:active { transform: scale(0.97); }
+.btn-blue { background: #3498db; color: #fff; }
+.btn-blue:hover { background: #2980b9; }
+.btn-green { background: #27ae60; color: #fff; }
+.btn-green:hover { background: #219150; }
+.btn-red { background: #e74c3c; color: #fff; }
+.btn-red:hover { background: #c0392b; }
+.btn-gray { background: #ecf0f1; color: #555; }
+.btn-gray:hover { background: #d5d8dc; }
+.btn-orange { background: #e67e22; color: #fff; }
+.btn-orange:hover { background: #ca6f1e; }
+
+/* Toolbar sortare */
+.toolbar {
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+  margin-bottom: 14px;
+}
+.toolbar select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 13px;
+  background: #fff;
+  cursor: pointer;
+}
+.toolbar label { font-size: 13px; color: #666; }
+
+/* Lista evenimente */
+#lista { min-height: 60px; }
+
+.ev-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  background: #f8f9fa;
+  border: 1px solid #eee;
+  transition: background 0.2s;
+}
+.ev-item:hover { background: #eaf4fb; border-color: #bee3f8; }
+
+.ev-nr { font-size: 12px; color: #aaa; min-width: 22px; text-align: right; }
+.ev-data {
+  font-size: 13px; font-weight: 700; color: #2980b9;
+  min-width: 90px; text-align: center;
+  background: #eaf4fb; padding: 3px 8px; border-radius: 6px;
+}
+.ev-titlu { flex: 1; font-size: 14px; color: #2c3e50; }
+.ev-badge {
+  font-size: 11px; font-weight: 700; padding: 2px 8px;
+  border-radius: 10px; color: #fff; white-space: nowrap;
+}
+.badge-azi { background: #e74c3c; }
+.badge-viitor { background: #27ae60; }
+.badge-trecut { background: #95a5a6; }
+
+.ev-actions { display: flex; gap: 5px; }
+.ev-del {
+  background: none; border: none; cursor: pointer;
+  color: #ccc; font-size: 18px; line-height: 1;
+  padding: 2px 5px; border-radius: 4px;
+  transition: color 0.2s;
+}
+.ev-del:hover { color: #e74c3c; }
+
+.empty-msg { text-align: center; color: #bbb; padding: 30px; font-size: 14px; }
+
+/* Contoare */
+.stats {
+  display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px;
+}
+.stat-box {
+  flex: 1; min-width: 80px; text-align: center;
+  padding: 10px; border-radius: 8px; background: #f8f9fa;
+}
+.stat-box .num { font-size: 24px; font-weight: 700; }
+.stat-box .lab { font-size: 11px; color: #999; margin-top: 2px; }
+.c-total .num { color: #3498db; }
+.c-viitor .num { color: #27ae60; }
+.c-azi .num { color: #e74c3c; }
+.c-trecut .num { color: #95a5a6; }
+
+/* Output text */
+#output-area { display: none; }
+#output-text {
+  width: 100%; min-height: 140px;
+  font-family: monospace; font-size: 13px;
+  border: 1px solid #ddd; border-radius: 8px;
+  padding: 12px; resize: vertical; background: #fdfdfd;
+}
+.out-toolbar { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.out-toolbar select {
+  padding: 7px 12px; border: 1px solid #ddd;
+  border-radius: 8px; font-size: 13px; background: #fff;
+}
+
+/* Import paste */
+#import-area { display: none; margin-top: 12px; }
+#import-text {
+  width: 100%; height: 100px;
+  font-family: monospace; font-size: 12px;
+  border: 1px solid #ddd; border-radius: 8px;
+  padding: 10px; resize: vertical;
+}
+
+@media (max-width: 600px) {
+  .add-row { flex-direction: column; }
+  .toolbar { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<h1>📅 Generator Evenimente</h1>
+
+<!-- Adauga -->
+<div class="card">
+  <h2>Adauga eveniment</h2>
+  <div class="add-row">
+    <div class="field">
+      <label>Titlu eveniment</label>
+      <input type="text" id="inpTitlu" placeholder="ex: Festival de muzica, Meci fotbal..." maxlength="200">
+    </div>
+    <div class="field" style="max-width:180px">
+      <label>Data</label>
+      <input type="date" id="inpData">
+    </div>
+    <button class="btn btn-blue" onclick="adaugaEveniment()">+ Adauga</button>
+  </div>
+  <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
+    <button class="btn btn-gray" style="font-size:12px; padding:7px 14px" onclick="toggleImport()">Import lista text</button>
+    <button class="btn btn-gray" style="font-size:12px; padding:7px 14px" onclick="stergeToate()" id="btnSterge" style="display:none">Sterge toate</button>
+  </div>
+  <div id="import-area">
+    <p style="font-size:12px; color:#888; margin:8px 0">Un eveniment per rand, format: <code>Titlu | dd.mm.yyyy</code> sau <code>Titlu, dd.mm.yyyy</code></p>
+    <textarea id="import-text" placeholder="Festival muzica | 15.03.2026&#10;Meci fotbal | 22.04.2026&#10;Concert | 01.06.2026"></textarea>
+    <button class="btn btn-blue" style="margin-top:8px; font-size:13px; padding:8px 16px" onclick="importText()">Importa</button>
+  </div>
+</div>
+
+<!-- Lista -->
+<div class="card">
+  <div class="stats">
+    <div class="stat-box c-total"><div class="num" id="cTotal">0</div><div class="lab">Total</div></div>
+    <div class="stat-box c-azi"><div class="num" id="cAzi">0</div><div class="lab">Azi</div></div>
+    <div class="stat-box c-viitor"><div class="num" id="cViitor">0</div><div class="lab">Viitoare</div></div>
+    <div class="stat-box c-trecut"><div class="num" id="cTrecut">0</div><div class="lab">Trecute</div></div>
+  </div>
+
+  <div class="toolbar">
+    <label>Sorteaza:</label>
+    <select id="sortBy" onchange="randeazaLista()">
+      <option value="data-asc">Data ↑ (cele mai apropiate primul)</option>
+      <option value="data-desc">Data ↓ (cele mai indepartate primul)</option>
+      <option value="luna-zi-asc">Luna + Zi ↑ (ignora anul)</option>
+      <option value="luna-zi-desc">Luna + Zi ↓ (ignora anul)</option>
+      <option value="alfabet">Alfabetic (titlu)</option>
+      <option value="adaugat">Ordinea adaugarii</option>
+    </select>
+    <label style="margin-left:8px">Filtru:</label>
+    <select id="filtru" onchange="randeazaLista()">
+      <option value="toate">Toate</option>
+      <option value="viitor">Doar viitoare</option>
+      <option value="trecut">Doar trecute</option>
+      <option value="azi">Doar azi</option>
+    </select>
+  </div>
+
+  <div id="lista"><div class="empty-msg">Niciun eveniment adaugat inca.</div></div>
+</div>
+
+<!-- Export -->
+<div class="card" id="output-area">
+  <h2>Export / Copiere</h2>
+  <div class="out-toolbar">
+    <select id="fmtOut" onchange="genereazaOutput()">
+      <option value="lista">Lista simpla</option>
+      <option value="tabel">Tabel text</option>
+      <option value="html-li">HTML lista</option>
+      <option value="csv">CSV</option>
+      <option value="json">JSON</option>
+    </select>
+    <button class="btn btn-gray" style="padding:7px 14px; font-size:13px" onclick="genereazaOutput()">Actualizeaza</button>
+    <button class="btn btn-blue" style="padding:7px 14px; font-size:13px" onclick="copiaza()">Copiaza</button>
+    <button class="btn btn-orange" style="padding:7px 14px; font-size:13px" onclick="descarcaTxt()">Descarca .txt</button>
+  </div>
+  <textarea id="output-text" readonly></textarea>
+</div>
+
+<script>
+let evenimente = JSON.parse(localStorage.getItem('ev_generator') || '[]');
+let nextId = parseInt(localStorage.getItem('ev_nextId') || '1');
+
+function salveaza() {
+  localStorage.setItem('ev_generator', JSON.stringify(evenimente));
+  localStorage.setItem('ev_nextId', String(nextId));
+}
+
+function parseData(s) {
+  if (!s) return null;
+  // format input[date] = yyyy-mm-dd
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+  // dd.mm.yyyy sau dd/mm/yyyy
+  const m2 = s.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4})$/);
+  if (m2) {
+    const an = +m2[3] < 100 ? 2000 + +m2[3] : +m2[3];
+    return new Date(an, +m2[2]-1, +m2[1]);
+  }
+  const d = new Date(s);
+  return isNaN(d) ? null : d;
+}
+
+function formatData(d) {
+  if (!d) return '—';
+  return String(d.getDate()).padStart(2,'0') + '.' +
+         String(d.getMonth()+1).padStart(2,'0') + '.' +
+         d.getFullYear();
+}
+
+function toInputDate(d) {
+  if (!d) return '';
+  return d.getFullYear() + '-' +
+    String(d.getMonth()+1).padStart(2,'0') + '-' +
+    String(d.getDate()).padStart(2,'0');
+}
+
+function getStatus(d) {
+  if (!d) return 'necunoscut';
+  const azi = new Date(); azi.setHours(0,0,0,0);
+  const t = new Date(d); t.setHours(0,0,0,0);
+  if (t.getTime() === azi.getTime()) return 'azi';
+  return t > azi ? 'viitor' : 'trecut';
+}
+
+function adaugaEveniment() {
+  const titlu = document.getElementById('inpTitlu').value.trim();
+  const dataStr = document.getElementById('inpData').value;
+  if (!titlu) { document.getElementById('inpTitlu').focus(); shake('inpTitlu'); return; }
+  const d = parseData(dataStr);
+  evenimente.push({ id: nextId++, titlu, data: d ? toInputDate(d) : null });
+  salveaza();
+  document.getElementById('inpTitlu').value = '';
+  document.getElementById('inpData').value = '';
+  document.getElementById('inpTitlu').focus();
+  randeazaLista();
+}
+
+function shake(id) {
+  const el = document.getElementById(id);
+  el.style.borderColor = '#e74c3c';
+  setTimeout(() => el.style.borderColor = '', 1000);
+}
+
+function stergeEveniment(id) {
+  evenimente = evenimente.filter(e => e.id !== id);
+  salveaza();
+  randeazaLista();
+}
+
+function stergeToate() {
+  if (confirm('Stergi toate evenimentele?')) {
+    evenimente = [];
+    salveaza();
+    randeazaLista();
+  }
+}
+
+function getSorted() {
+  const mod = document.getElementById('sortBy').value;
+  const filtru = document.getElementById('filtru').value;
+
+  let lista = [...evenimente].map(e => ({
+    ...e,
+    dataParsed: e.data ? parseData(e.data) : null,
+    status: getStatus(e.data ? parseData(e.data) : null)
+  }));
+
+  if (filtru !== 'toate') lista = lista.filter(e => e.status === filtru);
+
+  lista.sort((a, b) => {
+    const da = a.dataParsed, db = b.dataParsed;
+    if (mod === 'data-asc') {
+      if (!da && !db) return 0; if (!da) return 1; if (!db) return -1;
+      return da - db;
+    }
+    if (mod === 'data-desc') {
+      if (!da && !db) return 0; if (!da) return 1; if (!db) return -1;
+      return db - da;
+    }
+    if (mod === 'luna-zi-asc') {
+      const ka = da ? da.getMonth()*100+da.getDate() : 9999;
+      const kb = db ? db.getMonth()*100+db.getDate() : 9999;
+      return ka - kb;
+    }
+    if (mod === 'luna-zi-desc') {
+      const ka = da ? da.getMonth()*100+da.getDate() : 9999;
+      const kb = db ? db.getMonth()*100+db.getDate() : 9999;
+      return kb - ka;
+    }
+    if (mod === 'alfabet') return a.titlu.localeCompare(b.titlu, 'ro');
+    return a.id - b.id;
+  });
+  return lista;
+}
+
+function randeazaLista() {
+  const lista = getSorted();
+  const el = document.getElementById('lista');
+  const azi = new Date(); azi.setHours(0,0,0,0);
+
+  // Statistici
+  const all = evenimente.map(e => ({ status: getStatus(e.data ? parseData(e.data) : null) }));
+  document.getElementById('cTotal').textContent = all.length;
+  document.getElementById('cAzi').textContent = all.filter(e => e.status === 'azi').length;
+  document.getElementById('cViitor').textContent = all.filter(e => e.status === 'viitor').length;
+  document.getElementById('cTrecut').textContent = all.filter(e => e.status === 'trecut').length;
+
+  if (lista.length === 0) {
+    el.innerHTML = '<div class="empty-msg">Niciun eveniment' + (document.getElementById('filtru').value !== 'toate' ? ' pentru filtrul selectat' : ' adaugat inca') + '.</div>';
+    document.getElementById('output-area').style.display = 'none';
+    return;
+  }
+
+  const badgeMap = { azi: 'badge-azi', viitor: 'badge-viitor', trecut: 'badge-trecut', necunoscut: '' };
+  const labelMap = { azi: 'AZI', viitor: 'viitor', trecut: 'trecut', necunoscut: '—' };
+
+  el.innerHTML = lista.map((e, i) => `
+    <div class="ev-item" id="ev-${e.id}">
+      <span class="ev-nr">${i+1}</span>
+      <span class="ev-data">${e.dataParsed ? formatData(e.dataParsed) : '—'}</span>
+      <span class="ev-titlu">${escHtml(e.titlu)}</span>
+      <span class="ev-badge ${badgeMap[e.status]}">${labelMap[e.status]}</span>
+      <div class="ev-actions">
+        <button class="ev-del" onclick="stergeEveniment(${e.id})" title="Sterge">×</button>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('output-area').style.display = 'block';
+  genereazaOutput();
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function genereazaOutput() {
+  const lista = getSorted();
+  const fmt = document.getElementById('fmtOut').value;
+  let out = '';
+
+  if (fmt === 'lista') {
+    out = lista.map((e, i) =>
+      `${i+1}. ${e.titlu} — ${e.dataParsed ? formatData(e.dataParsed) : '—'}`
+    ).join('\n');
+  } else if (fmt === 'tabel') {
+    const w = Math.max(15, ...lista.map(e => e.titlu.length));
+    const sep = '─'.repeat(w + 18);
+    out = sep + '\n';
+    out += 'Eveniment'.padEnd(w) + '  Data          Status\n';
+    out += sep + '\n';
+    out += lista.map(e =>
+      e.titlu.padEnd(w) + '  ' +
+      (e.dataParsed ? formatData(e.dataParsed) : '—').padEnd(14) +
+      (e.status === 'azi' ? 'AZI' : e.status)
+    ).join('\n');
+    out += '\n' + sep;
+  } else if (fmt === 'html-li') {
+    out = '<ul>\n' + lista.map(e =>
+      `  <li><strong>${escHtml(e.titlu)}</strong> — ${e.dataParsed ? formatData(e.dataParsed) : '—'}</li>`
+    ).join('\n') + '\n</ul>';
+  } else if (fmt === 'csv') {
+    out = 'Nr,Titlu,Data,Status\n' + lista.map((e, i) =>
+      `${i+1},"${e.titlu}",${e.dataParsed ? formatData(e.dataParsed) : ''},${e.status}`
+    ).join('\n');
+  } else if (fmt === 'json') {
+    out = JSON.stringify(lista.map((e, i) => ({
+      nr: i+1, titlu: e.titlu,
+      data: e.dataParsed ? formatData(e.dataParsed) : null,
+      status: e.status
+    })), null, 2);
+  }
+
+  document.getElementById('output-text').value = out;
+}
+
+function copiaza() {
+  const ta = document.getElementById('output-text');
+  ta.select();
+  document.execCommand('copy');
+  const btn = event.target;
+  btn.textContent = 'Copiat!';
+  setTimeout(() => btn.textContent = 'Copiaza', 1500);
+}
+
+function descarcaTxt() {
+  const continut = document.getElementById('output-text').value;
+  const fmt = document.getElementById('fmtOut').value;
+  const ext = fmt === 'json' ? 'json' : fmt === 'csv' ? 'csv' : fmt === 'html-li' ? 'html' : 'txt';
+  const blob = new Blob([continut], { type: 'text/plain; charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'evenimente.' + ext;
+  a.click();
+}
+
+function toggleImport() {
+  const el = document.getElementById('import-area');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function importText() {
+  const lines = document.getElementById('import-text').value.split('\n');
+  let adaugate = 0;
+  lines.forEach(line => {
+    line = line.trim();
+    if (!line) return;
+    // Separatori: |, ,, ; sau tab
+    const sep = line.includes('|') ? '|' : line.includes(';') ? ';' : line.includes('\t') ? '\t' : ',';
+    const parts = line.split(sep).map(p => p.trim());
+    if (parts.length >= 2) {
+      const titlu = parts[0];
+      const d = parseData(parts[1]);
+      if (titlu) {
+        evenimente.push({ id: nextId++, titlu, data: d ? toInputDate(d) : null });
+        adaugate++;
+      }
+    } else if (parts.length === 1 && parts[0]) {
+      evenimente.push({ id: nextId++, titlu: parts[0], data: null });
+      adaugate++;
+    }
+  });
+  salveaza();
+  document.getElementById('import-text').value = '';
+  document.getElementById('import-area').style.display = 'none';
+  randeazaLista();
+  if (adaugate > 0) alert(`${adaugate} evenimente importate!`);
+}
+
+// Enter pt adaugare rapida
+document.getElementById('inpTitlu').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('inpData').focus();
+});
+document.getElementById('inpData').addEventListener('keydown', e => {
+  if (e.key === 'Enter') adaugaEveniment();
+});
+
+// Init
+randeazaLista();
+</script>
+</body>
+</html>

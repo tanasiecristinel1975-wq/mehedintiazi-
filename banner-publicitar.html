@@ -1,0 +1,183 @@
+﻿<!DOCTYPE html>
+<html lang="ro">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-67X58CLV15"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-67X58CLV15');
+</script>
+  <meta charset="UTF-8" />
+  <title>Banner MehedintiAzi.ro</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #eee; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 30px; font-family: Arial, sans-serif; }
+
+    /* ===== BANNER 728x90 ===== */
+    .banner-728 {
+      width: 728px;
+      height: 90px;
+      background: linear-gradient(135deg, #1a3a5c 0%, #0d2240 50%, #c0392b 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .banner-728::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(255,255,255,0.02) 10px,
+        rgba(255,255,255,0.02) 20px
+      );
+    }
+    .banner-728 .logo-img {
+      height: 75px;
+      width: auto;
+      flex-shrink: 0;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+    .banner-728 .text-zona {
+      flex: 1;
+      padding: 0 20px;
+      color: #fff;
+    }
+    .banner-728 .text-zona h2 {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+      white-space: nowrap;
+    }
+    .banner-728 .text-zona h2 span { color: #e8a000; }
+    .banner-728 .text-zona p {
+      font-size: 12px;
+      opacity: 0.85;
+      margin-top: 3px;
+      white-space: nowrap;
+    }
+    .banner-728 .cta-btn {
+      background: #e8a000;
+      color: #000;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 900;
+      border-radius: 3px;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+
+    /* ===== BANNER 300x250 ===== */
+    .banner-300 {
+      width: 300px;
+      height: 250px;
+      background: linear-gradient(160deg, #1a3a5c 0%, #0d2240 60%, #c0392b 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      gap: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .banner-300::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(255,255,255,0.02) 10px,
+        rgba(255,255,255,0.02) 20px
+      );
+    }
+    .banner-300 .logo-img {
+      height: 100px;
+      width: auto;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+      position: relative;
+      z-index: 1;
+    }
+    .banner-300 .text-300 {
+      text-align: center;
+      color: #fff;
+      position: relative;
+      z-index: 1;
+    }
+    .banner-300 .text-300 h3 {
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+    }
+    .banner-300 .text-300 h3 span { color: #e8a000; }
+    .banner-300 .text-300 p {
+      font-size: 11px;
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+    .banner-300 .cta-btn-300 {
+      background: #e8a000;
+      color: #000;
+      padding: 10px 25px;
+      font-size: 13px;
+      font-weight: 900;
+      border-radius: 3px;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 1;
+      animation: pulse 2s infinite;
+    }
+
+    .label { font-size: 13px; color: #555; font-weight: 700; }
+  </style>
+</head>
+<body>
+
+  <div class="label">BANNER 728x90 — Leaderboard</div>
+
+  <!-- BANNER 728x90 -->
+  <a href="https://mehedintiazi.ro" target="_blank" class="banner-728">
+    <img src="img/logo.jpg" class="logo-img" alt="MehedintiAzi.ro" />
+    <div class="text-zona">
+      <h2>Mehedinti<span>Azi</span>.ro</h2>
+      <p>Știri locale din județul Mehedinți &mdash; Fii primul informat!</p>
+    </div>
+    <div class="cta-btn">Citeste acum</div>
+  </a>
+
+  <div class="label">BANNER 300x250 — Sidebar</div>
+
+  <!-- BANNER 300x250 -->
+  <a href="https://mehedintiazi.ro" target="_blank" class="banner-300">
+    <img src="img/logo.jpg" class="logo-img" alt="MehedintiAzi.ro" />
+    <div class="text-300">
+      <h3>Mehedinti<span>Azi</span>.ro</h3>
+      <p>Știri locale din județul Mehedinți</p>
+    </div>
+    <div class="cta-btn-300">Citeste acum</div>
+  </a>
+
+</body>
+</html>

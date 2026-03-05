@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <title>Banner Cris Media Studio</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 40px; font-family: Arial, sans-serif; padding: 40px; }
+    .label { color: #aaa; font-size: 13px; font-weight: 700; }
+
+    /* ===== BANNER 728x90 ===== */
+    .cris-728 {
+      width: 728px;
+      height: 90px;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 40%, #2a1a00 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 22px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      text-decoration: none;
+      border: 1px solid #333;
+    }
+    .cris-728::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(212,175,55,0.08) 0%, transparent 70%);
+    }
+    .cris-728 .camera-icon {
+      font-size: 40px;
+      filter: drop-shadow(0 0 8px rgba(212,175,55,0.5));
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+    .cris-728 .text-zona {
+      flex: 1;
+      padding: 0 18px;
+      position: relative;
+      z-index: 1;
+    }
+    .cris-728 .text-zona h2 {
+      font-size: 22px;
+      font-weight: 900;
+      color: #d4af37;
+      letter-spacing: 1px;
+      text-shadow: 0 0 15px rgba(212,175,55,0.4);
+    }
+    .cris-728 .text-zona h2 span { color: #fff; }
+    .cris-728 .text-zona p {
+      font-size: 12px;
+      color: #aaa;
+      margin-top: 3px;
+      letter-spacing: 0.5px;
+    }
+    .cris-728 .dreapta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+    .cris-728 .tel {
+      color: #fff;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+    .cris-728 .tel span { color: #d4af37; }
+    .cris-728 .cta {
+      background: linear-gradient(135deg, #d4af37, #b8860b);
+      color: #000;
+      padding: 6px 16px;
+      font-size: 11px;
+      font-weight: 900;
+      border-radius: 2px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      white-space: nowrap;
+      animation: glow 2s infinite;
+    }
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 5px rgba(212,175,55,0.3); }
+      50% { box-shadow: 0 0 15px rgba(212,175,55,0.7); }
+    }
+
+    /* ===== BANNER 300x250 ===== */
+    .cris-300 {
+      width: 300px;
+      height: 250px;
+      background: linear-gradient(160deg, #0a0a0a 0%, #1a1a1a 50%, #2a1a00 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      text-decoration: none;
+      border: 1px solid #333;
+    }
+    .cris-300::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(ellipse at 50% 40%, rgba(212,175,55,0.1) 0%, transparent 70%);
+    }
+    .cris-300 .camera-icon-300 {
+      font-size: 55px;
+      filter: drop-shadow(0 0 12px rgba(212,175,55,0.6));
+      position: relative;
+      z-index: 1;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    .cris-300 .titlu-300 {
+      font-size: 20px;
+      font-weight: 900;
+      color: #d4af37;
+      letter-spacing: 1.5px;
+      text-align: center;
+      text-shadow: 0 0 15px rgba(212,175,55,0.4);
+      position: relative;
+      z-index: 1;
+      line-height: 1.2;
+    }
+    .cris-300 .titlu-300 span { color: #fff; display: block; font-size: 14px; letter-spacing: 3px; margin-bottom: 2px; }
+    .cris-300 .subtitlu-300 {
+      font-size: 11px;
+      color: #888;
+      letter-spacing: 1px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .cris-300 .linie {
+      width: 60px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #d4af37, transparent);
+      position: relative;
+      z-index: 1;
+    }
+    .cris-300 .tel-300 {
+      font-size: 20px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 1px;
+      position: relative;
+      z-index: 1;
+    }
+    .cris-300 .tel-300 span { color: #d4af37; }
+    .cris-300 .cta-300 {
+      background: linear-gradient(135deg, #d4af37, #b8860b);
+      color: #000;
+      padding: 9px 25px;
+      font-size: 12px;
+      font-weight: 900;
+      border-radius: 2px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+      z-index: 1;
+      animation: glow 2s infinite;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="label">BANNER 728x90 — Leaderboard</div>
+
+  <a href="tel:+40740514961" class="cris-728">
+    <div class="camera-icon">🎥</div>
+    <div class="text-zona">
+      <h2>CRIS MEDIA <span>STUDIO</span></h2>
+      <p>Fotografie &bull; Videografie &bull; Evenimente &bull; Publicitate</p>
+    </div>
+    <div class="dreapta">
+      <div class="tel"><span>&#128222;</span> 0740 514 961</div>
+      <div class="cta">Solicita oferta</div>
+    </div>
+  </a>
+
+  <div class="label">BANNER 300x250 — Sidebar</div>
+
+  <a href="tel:+40740514961" class="cris-300">
+    <div class="camera-icon-300">🎥</div>
+    <div class="titlu-300">
+      <span>CRIS MEDIA</span>
+      STUDIO
+    </div>
+    <div class="subtitlu-300">Fotografie &bull; Videografie &bull; Evenimente</div>
+    <div class="linie"></div>
+    <div class="tel-300"><span>&#128222;</span> 0740 514 961</div>
+    <div class="cta-300">Solicita oferta</div>
+  </a>
+
+</body>
+</html>

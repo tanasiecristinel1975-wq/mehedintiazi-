@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generator Ordonare Evenimente</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; }
+  h1 { text-align: center; color: #2c3e50; margin-bottom: 20px; font-size: 22px; }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .card h2 { font-size: 16px; color: #444; margin-bottom: 12px; }
+
+  .upload-area {
+    border: 2px dashed #aaa;
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    color: #666;
+  }
+  .upload-area:hover, .upload-area.drag { border-color: #3498db; color: #3498db; }
+  .upload-area input { display: none; }
+  .upload-area .icon { font-size: 36px; margin-bottom: 8px; }
+
+  .config-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .config-row label { font-size: 13px; color: #555; }
+  .config-row select, .config-row input {
+    padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px;
+    font-size: 13px; margin-top: 4px; display: block; min-width: 150px;
+  }
+
+  button.btn {
+    background: #3498db; color: #fff; border: none; padding: 10px 24px;
+    border-radius: 6px; font-size: 14px; cursor: pointer; margin-top: 10px;
+  }
+  button.btn:hover { background: #2980b9; }
+  button.btn-green { background: #27ae60; }
+  button.btn-green:hover { background: #219150; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: #3498db; color: #fff; padding: 8px 10px; text-align: left; }
+  td { padding: 7px 10px; border-bottom: 1px solid #eee; }
+  tr:nth-child(even) td { background: #f8f9fa; }
+  tr:hover td { background: #eaf4fb; }
+
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 12px;
+    font-size: 11px; font-weight: bold; color: #fff;
+  }
+  .badge-azi { background: #e74c3c; }
+  .badge-viitor { background: #27ae60; }
+  .badge-trecut { background: #95a5a6; }
+
+  #status { font-size: 13px; color: #888; margin-top: 6px; }
+  .preview-info { font-size: 12px; color: #999; margin-bottom: 8px; }
+
+  .copy-btn {
+    background: none; border: 1px solid #ccc; padding: 3px 8px;
+    border-radius: 4px; font-size: 11px; cursor: pointer; color: #555;
+  }
+  .copy-btn:hover { background: #eee; }
+
+  #output-text {
+    width: 100%; min-height: 120px; font-family: monospace; font-size: 12px;
+    border: 1px solid #ddd; border-radius: 6px; padding: 10px; resize: vertical;
+    background: #fdfdfd;
+  }
+</style>
+</head>
+<body>
+
+<h1>Generator Ordonare Evenimente dupa Data</h1>
+
+<div class="card">
+  <h2>1. Incarca fisierul Excel (.xlsx / .xls / .csv)</h2>
+  <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+    <div class="icon">📂</div>
+    <div>Click sau trage fisierul Excel aici</div>
+    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
+  </div>
+  <div id="status"></div>
+</div>
+
+<div class="card" id="configCard" style="display:none">
+  <h2>2. Configureaza coloanele</h2>
+  <div class="preview-info" id="previewInfo"></div>
+  <div class="config-row">
+    <div>
+      <label>Coloana TITLU / EVENIMENT</label>
+      <select id="colTitlu"></select>
+    </div>
+    <div>
+      <label>Coloana DATA</label>
+      <select id="colData"></select>
+    </div>
+    <div>
+      <label>Coloana extra (optional)</label>
+      <select id="colExtra"><option value="">— niciuna —</option></select>
+    </div>
+  </div>
+  <div class="config-row">
+    <div>
+      <label>Sorteaza dupa</label>
+      <select id="sortBy">
+        <option value="luna-zi">Luna + Zi (ignora anul)</option>
+        <option value="data-completa">Data completa (an + luna + zi)</option>
+        <option value="zi-luna">Zi + Luna</option>
+      </select>
+    </div>
+    <div>
+      <label>Ordine</label>
+      <select id="sortOrder">
+        <option value="asc">Crescator (inainte)</option>
+        <option value="desc">Descrescator (dupa)</option>
+      </select>
+    </div>
+    <div>
+      <label>An de referinta (pentru "Luna+Zi")</label>
+      <input type="number" id="refYear" value="2026" min="2000" max="2100">
+    </div>
+  </div>
+  <button class="btn" onclick="sorteaza()">Sorteaza evenimentele</button>
+</div>
+
+<div class="card" id="resultCard" style="display:none">
+  <h2>3. Rezultate ordonate</h2>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+    <span id="resultCount" style="font-size:13px; color:#666;"></span>
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-green" onclick="exportExcel()">Exporta Excel</button>
+      <button class="btn" onclick="genereazaText()">Genereaza text</button>
+    </div>
+  </div>
+  <div style="overflow-x:auto">
+    <table id="resultTable">
+      <thead id="resultHead"></thead>
+      <tbody id="resultBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card" id="textCard" style="display:none">
+  <h2>4. Text generat (copiaza)</h2>
+  <div style="margin-bottom:8px; display:flex; gap:8px; align-items:center;">
+    <select id="textFormat" style="padding:5px 10px; border:1px solid #ccc; border-radius:6px; font-size:13px;">
+      <option value="lista">Lista simpla</option>
+      <option value="tabel">Tabel text</option>
+      <option value="html">HTML lista</option>
+      <option value="json">JSON</option>
+    </select>
+    <button class="btn" style="margin-top:0; padding:7px 16px;" onclick="genereazaText()">Actualizeaza</button>
+    <button class="copy-btn" onclick="copiazaText()">Copiaza tot</button>
+  </div>
+  <textarea id="output-text" readonly></textarea>
+</div>
+
+<script>
+let rows = [];
+let headers = [];
+let sortedRows = [];
+
+const fileInput = document.getElementById('fileInput');
+const uploadArea = document.getElementById('uploadArea');
+
+uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag'); });
+uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag'));
+uploadArea.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadArea.classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) proceseazaFisier(file);
+});
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) proceseazaFisier(fileInput.files[0]);
+});
+
+function proceseazaFisier(file) {
+  document.getElementById('status').textContent = 'Se proceseaza: ' + file.name + '...';
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'binary', cellDates: true });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+      if (data.length < 2) { alert('Fisierul pare gol sau fara date.'); return; }
+      headers = data[0].map(h => String(h).trim());
+      rows = data.slice(1).filter(r => r.some(c => c !== ''));
+      document.getElementById('status').textContent = `Incarcat: ${file.name} — ${rows.length} randuri, ${headers.length} coloane`;
+      afiseazaConfig();
+    } catch (err) {
+      document.getElementById('status').textContent = 'Eroare la citire: ' + err.message;
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+function afiseazaConfig() {
+  document.getElementById('configCard').style.display = 'block';
+  document.getElementById('previewInfo').textContent =
+    'Coloane detectate: ' + headers.join(', ');
+  ['colTitlu', 'colData', 'colExtra'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = id === 'colExtra' ? '<option value="">— niciuna —</option>' : '';
+    headers.forEach((h, i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = `[${i+1}] ${h}`;
+      sel.appendChild(opt);
+    });
+  });
+  // Auto-detect coloana data
+  headers.forEach((h, i) => {
+    const hl = h.toLowerCase();
+    if (hl.includes('dat') || hl.includes('date') || hl.includes('zi') || hl.includes('timp')) {
+      document.getElementById('colData').value = i;
+    }
+  });
+}
+
+function parseData(val) {
+  if (!val && val !== 0) return null;
+  // Deja Date object (din XLSX cu cellDates)
+  if (val instanceof Date) return isNaN(val) ? null : val;
+  // Numar serial Excel
+  if (typeof val === 'number') {
+    const d = new Date(Math.round((val - 25569) * 86400 * 1000));
+    return isNaN(d) ? null : d;
+  }
+  const s = String(val).trim();
+  // Formate comune: dd.mm.yyyy, dd/mm/yyyy, yyyy-mm-dd, dd-mm-yyyy
+  let m;
+  m = s.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4})$/);
+  if (m) {
+    let [, a, b, c] = m;
+    // Detecta daca e zi.luna.an sau an-luna-zi
+    if (parseInt(c) > 31) return new Date(+c, +b - 1, +a);
+    if (parseInt(a) > 12) return new Date(+c < 100 ? 2000 + +c : +c, +b - 1, +a);
+    return new Date(+c < 100 ? 2000 + +c : +c, +b - 1, +a);
+  }
+  m = s.match(/^(\d{4})[.\/-](\d{1,2})[.\/-](\d{1,2})$/);
+  if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+  const d = new Date(s);
+  return isNaN(d) ? null : d;
+}
+
+function getSortKey(d, mode, refYear) {
+  if (!d) return 99999999;
+  if (mode === 'luna-zi') return d.getMonth() * 100 + d.getDate();
+  if (mode === 'zi-luna') return d.getDate() * 100 + d.getMonth();
+  return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+}
+
+function formatData(d) {
+  if (!d) return '—';
+  const zi = String(d.getDate()).padStart(2, '0');
+  const luna = String(d.getMonth() + 1).padStart(2, '0');
+  const an = d.getFullYear();
+  return `${zi}.${luna}.${an}`;
+}
+
+function getBadge(d) {
+  if (!d) return '';
+  const azi = new Date(); azi.setHours(0,0,0,0);
+  const t = new Date(d); t.setHours(0,0,0,0);
+  if (t.getTime() === azi.getTime()) return '<span class="badge badge-azi">AZI</span>';
+  if (t > azi) return '<span class="badge badge-viitor">viitor</span>';
+  return '<span class="badge badge-trecut">trecut</span>';
+}
+
+function sorteaza() {
+  const iT = parseInt(document.getElementById('colTitlu').value);
+  const iD = parseInt(document.getElementById('colData').value);
+  const iE = document.getElementById('colExtra').value;
+  const mode = document.getElementById('sortBy').value;
+  const order = document.getElementById('sortOrder').value;
+  const refYear = parseInt(document.getElementById('refYear').value);
+
+  sortedRows = rows.map(r => ({
+    titlu: r[iT] || '',
+    dataRaw: r[iD],
+    dataParsed: parseData(r[iD]),
+    extra: iE !== '' ? r[parseInt(iE)] : null,
+    original: r
+  }));
+
+  sortedRows.sort((a, b) => {
+    const ka = getSortKey(a.dataParsed, mode, refYear);
+    const kb = getSortKey(b.dataParsed, mode, refYear);
+    return order === 'asc' ? ka - kb : kb - ka;
+  });
+
+  afiseazaRezultate(iE !== '');
+}
+
+function afiseazaRezultate(areExtra) {
+  document.getElementById('resultCard').style.display = 'block';
+  document.getElementById('resultCount').textContent = `${sortedRows.length} evenimente sortate`;
+
+  const head = document.getElementById('resultHead');
+  const body = document.getElementById('resultBody');
+  head.innerHTML = '<tr><th>#</th><th>Eveniment / Titlu</th><th>Data</th>' +
+    (areExtra ? '<th>Extra</th>' : '') + '<th>Status</th></tr>';
+  body.innerHTML = sortedRows.map((r, i) =>
+    `<tr>
+      <td>${i + 1}</td>
+      <td>${escHtml(String(r.titlu))}</td>
+      <td>${formatData(r.dataParsed)}</td>
+      ${areExtra ? `<td>${escHtml(String(r.extra || ''))}</td>` : ''}
+      <td>${getBadge(r.dataParsed)}</td>
+    </tr>`
+  ).join('');
+
+  document.getElementById('textCard').style.display = 'none';
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function genereazaText() {
+  document.getElementById('textCard').style.display = 'block';
+  const fmt = document.getElementById('textFormat').value;
+  let out = '';
+  if (fmt === 'lista') {
+    out = sortedRows.map((r, i) =>
+      `${i+1}. ${r.titlu} — ${formatData(r.dataParsed)}`
+    ).join('\n');
+  } else if (fmt === 'tabel') {
+    const w1 = Math.max(10, ...sortedRows.map(r => String(r.titlu).length));
+    const sep = '-'.repeat(w1 + 20);
+    out = sep + '\n';
+    out += 'Eveniment'.padEnd(w1) + '  Data\n';
+    out += sep + '\n';
+    out += sortedRows.map(r =>
+      String(r.titlu).padEnd(w1) + '  ' + formatData(r.dataParsed)
+    ).join('\n');
+    out += '\n' + sep;
+  } else if (fmt === 'html') {
+    out = '<ul>\n' + sortedRows.map(r =>
+      `  <li><strong>${escHtml(String(r.titlu))}</strong> — ${formatData(r.dataParsed)}</li>`
+    ).join('\n') + '\n</ul>';
+  } else if (fmt === 'json') {
+    out = JSON.stringify(sortedRows.map(r => ({
+      titlu: r.titlu,
+      data: formatData(r.dataParsed)
+    })), null, 2);
+  }
+  document.getElementById('output-text').value = out;
+}
+
+function copiazaText() {
+  const ta = document.getElementById('output-text');
+  ta.select();
+  document.execCommand('copy');
+  alert('Copiat!');
+}
+
+function exportExcel() {
+  const ws_data = [['#', 'Eveniment', 'Data', 'Status']];
+  sortedRows.forEach((r, i) => {
+    const azi = new Date(); azi.setHours(0,0,0,0);
+    const t = r.dataParsed ? new Date(r.dataParsed) : null;
+    if (t) t.setHours(0,0,0,0);
+    let status = '—';
+    if (t) status = t.getTime() === azi.getTime() ? 'AZI' : t > azi ? 'viitor' : 'trecut';
+    ws_data.push([i+1, r.titlu, formatData(r.dataParsed), status]);
+  });
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(ws_data);
+  XLSX.utils.book_append_sheet(wb, ws, 'Evenimente Sortate');
+  XLSX.writeFile(wb, 'evenimente-sortate.xlsx');
+}
+</script>
+</body>
+</html>
